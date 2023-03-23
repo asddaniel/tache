@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+    {% block content  %}
+    <div class="container-fluid">
+        <section class="vh-100">
+            <div class="container py-5 h-100">
+              <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col">
+                  <div class="card" id="list1" style="border-radius: .75rem; background-color: #eff1f2;">
+                    <div class="card-body py-4 px-4 px-md-5">
+          
+                      <p class="h1 text-center mt-3 mb-4 pb-3 text-primary">
+                        <i class="fas fa-check-square me-1"></i>
+                        <u>My Todo-s</u>
+                      </p>
+          
+                      <div class="pb-2">
+                        <div class="card">
+                          <div class="card-body">
+                            <div class="d-flex flex-row align-items-center justify-content-between">
+                              {% csrf_token %}
+                              <input type="text" class="form-control mx-2 border form-control-lg" id="todo_title"
+                                placeholder="ajouter titre..."> 
+                                <input type="text" class="form-control border form-control-lg" id="todo_content"
+                                placeholder="ajouter contenu...">
+                                <input type="hidden" name="todo_url" id="todo_url" value="{% url 'todo.add' %}">
+                              <a href="#!" data-mdb-toggle="tooltip" title="Set due date"><i
+                                  class="fas fa-calendar-alt fa-lg me-3"></i></a>
+                              <div>
+                                <button type="button" class="btn btn-primary add_todo">Ajouter</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+          
+                      <hr class="my-4">
+          
+                      <div class="d-flex justify-content-end align-items-center mb-4 pt-2 pb-3">
+                        <p class="small mb-0 me-2 text-muted">Filter</p>
+                        <select class="select">
+                          <option value="1">All</option>
+                          <option value="2">Completed</option>
+                          <option value="3">Active</option>
+                          <option value="4">Has due date</option>
+                        </select>
+                        <p class="small mb-0 ms-4 me-2 text-muted">Sort</p>
+                        <select class="select">
+                          <option value="1">Added date</option>
+                          <option value="2">Due date</option>
+                        </select>
+                        <a href="#!" style="color: #23af89;" data-mdb-toggle="tooltip" title="Ascending"><i
+                            class="fas fa-sort-amount-down-alt ms-2"></i></a>
+                      </div>
+             {% for todo in todos  %}
+                      <ul class="list-group list-group-horizontal rounded-0 bg-transparent">
+                        <li
+                          class="list-group-item d-flex align-items-center ps-0 pe-3 py-1 rounded-0 border-0 bg-transparent">
+                          <div class="form-check">
+                            <input class="form-check-input me-0" type="checkbox" value="" id="flexCheckChecked1"
+                              aria-label="..." checked />
+                          </div>
+                        </li>
+                        <li
+                          class="list-group-item px-3 py-1 d-flex align-items-center flex-grow-1 border-0 bg-transparent">
+                          <p class="lead fw-normal mb-0 fw-bold">{{todo.title}}</p>
+                        </li>
+                        <li class="list-group-item ps-3 pe-0 py-1 rounded-0 border-0 bg-transparent">
+                          <button class="btn btn-primary " data-id="{{todo.id}}" > <a href="{% url 'todo.modify' id=todo.id  %}" class="nav-link">modifier</a> </button>
+                        </li>
+                        <li class="list-group-item ps-3 pe-0 py-1 rounded-0 border-0 bg-transparent">
+                          <button class="btn btn-danger btn-delete" data-url="{% url 'todo.delete' id=todo.id %}">supprimer</button>
+                        </li>
+                      </ul>
+              {% endfor %}
+                    
+          
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+    </div>
+    <script>
+      document.querySelector(".add_todo").addEventListener("click", function(e){
+        e.preventDefault();
+        let form  = new FormData();
+        form.append("title", document.querySelector("#todo_title").value)
+        form.append("content", document.querySelector("#todo_content").value)
+        form.append('csrfmiddlewaretoken', document.getElementsByName("csrfmiddlewaretoken")[0].value)
+        if(document.querySelector("#todo_title").value.trim().length>0 && document.querySelector("#todo_content").value.trim().length>0){
+          fetch(document.querySelector("#todo_url").value.trim(), {
+            method: 'POST',
+            body:form
+          }).then(e=>{
+            return e.text()
+          }).then(e=>console.log(e))
+        }
+      })
+
+      const del = document.querySelectorAll(".btn-delete");
+      del.forEach(element => {
+        element.addEventListener("click", (e)=>{
+          e.preventDefault();
+          fetch(element.getAttribute('data-url'))
+          .then(e=>e.text())
+          .then(e=>window.location.reload())
+        })
+      });
+    </script>
+{% endblock %}
